@@ -2,7 +2,7 @@
 ## Title: Loot Roll Ledger
 ## Notes: Monitors party or raid chat loot rolls.
 ## Author: KeedoNow
-## Version: 0.3
+## Version: 0.4
 ## SavedVariables: LootRollLedgerDB
 
 embeds.xml
