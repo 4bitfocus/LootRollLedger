@@ -1,0 +1,11 @@
+## Interface: 40000
+## Title: Loot Roll Ledger
+## Notes: Monitors party or raid chat loot rolls.
+## Author: KeedoNow
+## Version: 0.3
+## SavedVariables: LootRollLedgerDB
+
+embeds.xml
+
+LootRollLedger.lua
+HistoryWindow.lua
