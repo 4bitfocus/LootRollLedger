@@ -14,8 +14,9 @@ externals:
 ignore:
     - README.md
     - Makefile
+    - Screenshots
 
-license-output: LICENSE
+license-output: LICENSE.txt
 
 enable-nolib-creation: no
 

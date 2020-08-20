@@ -4,8 +4,6 @@
 ## Author: KeedoNow
 ## Version: 0.4
 ## SavedVariables: LootRollLedgerDB
-
 embeds.xml
-
 LootRollLedger.lua
 HistoryWindow.lua
