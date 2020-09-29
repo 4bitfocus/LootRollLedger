@@ -19,6 +19,7 @@ This addon monitors item links sent to the raid/instance/party chat channel and 
   reporting - Enable or disable reporting results to raid chat (toggle)
   debug - Enable or disable additional logging (toggle)
   clear - Clear all active loot rolls
+  instructions - Post rolling instructions to raid chat
   search - Search previous item rolls
   history - Display loot roll history window
 ```
@@ -29,5 +30,5 @@ Loot History Window
 
 ## Improvement Opportunities
 
-1. If the same item is linked by different players they will be tracked separately
-2. Roll ties are not handled correctly and only one of the two ties will be announced
+1. If the same item is linked by different players, each item roll will be tracked separately.
+2. Roll ties are not handled correctly and only one of the two ties will be announced.
