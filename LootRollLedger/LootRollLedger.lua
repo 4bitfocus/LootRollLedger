@@ -37,8 +37,15 @@ function LootRollLedger:OnInitialize()
                 type = "execute",
                 func = "ClearActiveRolls",
             },
-            test = {
+            instructions = {
                 order = 5,
+                name = "Instructions",
+                desc = "Print instructions to chat window",
+                type = "execute",
+                func = "DisplayInstructions",
+            },
+            test = {
+                order = 6,
                 hidden = true,
                 name = "Test",
                 desc = "Test item link parsing",
@@ -46,14 +53,14 @@ function LootRollLedger:OnInitialize()
                 set = "SetTestMessage",
             },
             search = {
-                order = 6,
+                order = 7,
                 name = "Search",
                 desc = "Search previous item rolls",
                 type = "input",
                 set = "Search",
             },
             history = {
-                order = 7,
+                order = 8,
                 name = "History",
                 desc = "Display loot roll history window",
                 type = "input",
@@ -95,6 +102,7 @@ function LootRollLedger:OnEnable()
     -- Called when the addon is enabled
     --LootRollLedger:Print("Enabling")
     LootRollLedger:Print("Archived rolls database size: " .. #self.db.global.archivedRolls)
+    LootRollLedger:ScheduleRepeatingTimer("RollTimerExpired", 2)
 end
 
 function LootRollLedger:OnDisable()
@@ -135,6 +143,13 @@ function LootRollLedger:ClearActiveRolls(info)
     end
     self.db.global.activeRolls = { }
     --LootRollLedger:Print("All active rolls cleared")
+end
+
+function LootRollLedger:DisplayInstructions(info)
+    LootRollLedger:SendSmartMessage("Item roll instructions:")
+    LootRollLedger:SendSmartMessage("If you have an item to put up for roll, link the item in raid chat followed by a <number>")
+    LootRollLedger:SendSmartMessage("If you want to roll for an item, you *must* use the number shared with item. Type: /roll <number>")
+    LootRollLedger:SendSmartMessage("After two minutes, I will announce the winner")
 end
 
 function LootRollLedger:SetTestMessage(info, input)
@@ -198,7 +213,7 @@ function LootRollLedger:Search(info, input)
                 LootRollLedger:Print("No one rolled on " .. archivedData.item)
             else
                 local firstResult = archivedData.rolls[winnerIndex]
-                LootRollLedger:Print("The winner of " .. archivedData.item .. " from " .. archivedData.from .. " is " .. firstResult.name .. " with a roll of " .. firstResult.result)
+                LootRollLedger:Print("The winner of " .. archivedData.item .. " from " .. LootRollLedger:RemoveServerName(archivedData.from) .. " is " .. firstResult.name .. " with a roll of " .. firstResult.result)
                 if runnerUpIndex >= 0 then
                     secondResult = archivedData.rolls[runnerUpIndex]
                     LootRollLedger:Print("The runner-up was " .. secondResult.name .. " with a roll of " .. secondResult.result)
@@ -279,6 +294,10 @@ function LootRollLedger:ProcessRaidMessage(msg, author)
         local number = submsg:match("(%d+)")
         if number then
             number = tonumber(number)
+            -- Exclude a few numbers that are hard to deal with, or at least not currently handled
+            if number == 100 or number <= 1 then
+                LootRollLedger:SendSmartMessage("Awkward! That number (" .. number .. ") cannot be used for item rolls :/")
+            end
             local duplicateMax = false
             -- Check for a duplicate active roll for that number
             for activeKey, activeData in pairs(self.db.global.activeRolls) do
@@ -304,16 +323,20 @@ function LootRollLedger:ProcessRaidMessage(msg, author)
                 if self.db.profile.debug then
                     LootRollLedger:Print("Tracking loot roll (" .. number .. ") from " .. author .. " for " .. itemLink)
                 end
-                LootRollLedger:ScheduleTimer("RollTimerExpired", 120, data)
+                --LootRollLedger:ScheduleTimer("RollTimerExpired", 120, data)
             end
         end
     end
 end
 
 -- Callback from the scheduled timer for when a roll expires for an item
-function LootRollLedger:RollTimerExpired(timerData)
+--function LootRollLedger:RollTimerExpired(timerData)
+function LootRollLedger:RollTimerExpired()
+    if #self.db.global.activeRolls == 0 then
+        return
+    end
     if self.db.profile.debug then
-        LootRollLedger:Print("Timer expired for " .. timerData.item .. " (1-" .. timerData.max .. ")")
+        --LootRollLedger:Print("Timer expired for " .. timerData.item .. " (1-" .. timerData.max .. ")")
         LootRollLedger:Print("There are currently " .. #self.db.global.activeRolls .. " active rolls")
     end
     for loopCount = 1, 5 do
@@ -321,15 +344,15 @@ function LootRollLedger:RollTimerExpired(timerData)
         local skipRemaining = false
         for activeKey, activeData in pairs(self.db.global.activeRolls) do
             if not skipRemaining then
-                if (now - activeData.time) >= 120 then
                 --if activeData.max == timerData.max and activeData.from == timerData.from then
+                if (now - activeData.time) >= 120 then
                     local winnerIndex, runnerUpIndex = LootRollLedger:FindTopRoll(activeData)
                     if winnerIndex < 0 then
                         LootRollLedger:SendSmartMessage("No one rolled on " .. activeData.item)
                     else
                         winnerData = activeData.rolls[winnerIndex]
-                        -- TODO Clean up names in "activeData.from" and remove server extension
-                        LootRollLedger:SendSmartMessage("The winner of " .. activeData.item .. " from " .. activeData.from .. " is " .. winnerData.name .. " with a roll of " .. winnerData.result .. " (" .. activeData.max .. ")")
+                        --LootRollLedger:SendSmartMessage("The winner of " .. activeData.item .. " from " .. LootRollLedger:RemoveServerName(activeData.from) .. " is " .. winnerData.name .. " with a roll of " .. winnerData.result .. " (" .. activeData.max .. ")")
+                        LootRollLedger:SendSmartMessage("The winner of " .. activeData.item .. " is " .. winnerData.name .. "! Open trade with " .. LootRollLedger:RemoveServerName(activeData.from) .. " for your new item.")
                     end
                     table.remove(self.db.global.activeRolls, activeKey)
                     table.insert(self.db.global.archivedRolls, activeData)
@@ -347,7 +370,14 @@ function LootRollLedger:ProcessLootRoll(msg)
 
     -- TODO look into using the global string RANDOM_ROLL_RESULT to make this localization friendly
     local name, rollResult, minRoll, maxRoll = msg:match("^(.+) rolls (%d+) %((%d+)%-(%d+)%)$")
-    if not name then return end
+    if not name then
+        local name, rollResult = msg:match("^(.+) rolls (%d+)$")
+        if name and #self.db.global.activeRolls > 0 then
+            --LootRollLedger:Print("Looks like " .. name .. " used a default /roll command")
+            LootRollLedger:SendSmartMessage("Bad roll from " .. name .. ", please use the <number> in your /roll command.")
+        end
+        return
+    end
 
     rollResult = tonumber(rollResult)
     maxRoll = tonumber(maxRoll)
