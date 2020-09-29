@@ -4,6 +4,7 @@
 ## Author: KeedoNow
 ## Version: 0.4
 ## SavedVariables: LootRollLedgerDB
+## X-Curse-Project-ID: 402978
 embeds.xml
 LootRollLedger.lua
 HistoryWindow.lua
