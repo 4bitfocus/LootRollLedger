@@ -1,8 +1,8 @@
 ## Interface: 40000
 ## Title: Loot Roll Ledger
-## Notes: Monitors party or raid chat loot rolls.
+## Notes: Monitors item loot rolls from raid chat.
 ## Author: KeedoNow
-## Version: 0.4
+## Version: 0.5
 ## SavedVariables: LootRollLedgerDB
 ## X-Curse-Project-ID: 402978
 embeds.xml
