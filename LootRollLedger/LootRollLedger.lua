@@ -277,7 +277,10 @@ function LootRollLedger:ProcessRaidMessage(msg, author)
     if not self.db.profile.enabled then return end
 
     -- Ignore any of the messages that we send via SendSmartMessage() to the raid/party channel
-    if msg:find("The winner of ") or msg:find("No one rolled on ") or msg:find("Ut oh! That number ") then return end
+    if msg:find("The winner of ") or msg:find("No one rolled on ") or msg:find("Ut oh! That number ") or 
+       msg:find("command does not match an active item roll") then
+        return
+    end
 
     local itemColor, itemParts, itemName = LootRollLedger:MatchItemLink(msg)
     if not itemColor then return end
@@ -336,7 +339,6 @@ function LootRollLedger:RollTimerExpired()
         return
     end
     if self.db.profile.debug then
-        --LootRollLedger:Print("Timer expired for " .. timerData.item .. " (1-" .. timerData.max .. ")")
         LootRollLedger:Print("There are currently " .. #self.db.global.activeRolls .. " active rolls")
     end
     for loopCount = 1, 5 do
@@ -351,7 +353,6 @@ function LootRollLedger:RollTimerExpired()
                         LootRollLedger:SendSmartMessage("No one rolled on " .. activeData.item)
                     else
                         winnerData = activeData.rolls[winnerIndex]
-                        --LootRollLedger:SendSmartMessage("The winner of " .. activeData.item .. " from " .. LootRollLedger:RemoveServerName(activeData.from) .. " is " .. winnerData.name .. " with a roll of " .. winnerData.result .. " (" .. activeData.max .. ")")
                         LootRollLedger:SendSmartMessage("The winner of " .. activeData.item .. " is " .. winnerData.name .. "! Open trade with " .. LootRollLedger:RemoveServerName(activeData.from) .. " for your new item.")
                     end
                     table.remove(self.db.global.activeRolls, activeKey)
@@ -412,7 +413,7 @@ function LootRollLedger:ProcessLootRoll(msg)
 end
 
 -- NOTE: Any message that is logged here will also be sent back to this addon and needs
--- to be filtered if it would trigger another roll.
+-- to be filtered from ProcessRaidMessage() if it would trigger another roll.
 function LootRollLedger:SendSmartMessage(msg)
     local chatType = "NONE"
     if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
