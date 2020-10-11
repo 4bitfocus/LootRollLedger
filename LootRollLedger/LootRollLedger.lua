@@ -371,27 +371,24 @@ function LootRollLedger:ProcessLootRoll(msg)
     -- TODO look into using the global string RANDOM_ROLL_RESULT to make this localization friendly
     local name, rollResult, minRoll, maxRoll = msg:match("^(.+) rolls (%d+) %((%d+)%-(%d+)%)$")
     if not name then
-        local name, rollResult = msg:match("^(.+) rolls (%d+)$")
-        if name and #self.db.global.activeRolls > 0 then
-            --LootRollLedger:Print("Looks like " .. name .. " used a default /roll command")
-            LootRollLedger:SendSmartMessage("Bad roll from " .. name .. ", please use the <number> in your /roll command.")
-        end
         return
     end
 
-    rollResult = tonumber(rollResult)
-    maxRoll = tonumber(maxRoll)
-    minRoll = tonumber(minRoll)
+    local rollResult = tonumber(rollResult)
+    local maxRoll = tonumber(maxRoll)
+    local minRoll = tonumber(minRoll)
+    local foundActiveMatch = false
 
     for k1, v1 in pairs(self.db.global.activeRolls) do
         if v1.max == maxRoll and minRoll == 1 then
-            local foundExisting = false
+            foundActiveMatch = true
+            local alreadyRolled = false
             for k2, v2 in pairs(v1.rolls) do
                 if v2.name == name then
-                    foundExisting = true
+                    alreadyRolled = true
                 end
             end
-            if foundExisting then
+            if alreadyRolled then
                 if self.db.profile.debug then
                     LootRollLedger:Print("Ignoring multiple rolls from " .. name .. " for " .. v1.item)
                 end
@@ -406,6 +403,11 @@ function LootRollLedger:ProcessLootRoll(msg)
                 end
             end
         end
+    end
+
+    if not foundActiveMatch then
+        -- TODO Can this be a whisper?
+        LootRollLedger:SendSmartMessage("Sorry " .. name .. ", the <number> in your /roll command does not match an active item roll.")
     end
 end
 
