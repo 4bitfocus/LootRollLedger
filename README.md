@@ -2,13 +2,19 @@
 
 Simple loot roll monitor and tracker for World of Warcraft.
 
-This addon monitors item links sent to the raid/instance/party chat channel and then tracks rolls on that item. It uses the patented Luvly's Lovely Loot Rolling Method™️. This involves linking an item in raid chat followed by a number. It allows the raid to roll for multiple items at the same time. The addon will give folks two minutes to do a `/roll <number>` if they want the item.
+This addon monitors item links sent to the raid/instance/party chat channel and then tracks rolls for those items. It uses the patented Luvly's Lovely Loot Rolling Method™️ for distributing items after a boss kill. This process involves linking an item to raid chat followed by a number. Raiders that want to roll on that item use `/roll <number`, and the addon will track the entries and report the winner. This allows the raid to roll for multiple items at the same time. The addon will give players two minutes to do a `/roll <number>` if they want the item.
 
-## The Basics
+## Downloads
+
+[CurseForge Project Page](https://www.curseforge.com/wow/addons/lootrollledger)
+
+[WoW Interface Project Page](https://www.wowinterface.com/downloads/info25732-LootRollLedger.html)
+
+## Instructions
 
 1. Only one person needs to run this addon
-2. A player links an item in raid chat followed by a number: "[Psyche Shredder] 414"
-3. Use `/roll <number>` to roll on the item linked: "/roll 414"
+2. A player links an item in raid chat followed by a number. Example: "[Psyche Shredder] 414"
+3. Interested players type `/roll <number>` to roll on the item linked. Example: "/roll 414"
 4. After two minutes, the winner will be announced
 
 ## Commands
@@ -41,3 +47,4 @@ Loot History Window
 
 1. If the same item is linked by different players, each item roll will be tracked separately.
 2. Roll ties are not handled correctly and only one of the two ties will be announced.
+3. Gear type and player spec is not checked so anyone can roll for anything.
