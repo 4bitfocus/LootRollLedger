@@ -13,10 +13,14 @@ externals:
 
 ignore:
     - README.md
-    - Makefile
+    - Utils
     - Screenshots
 
 license-output: LICENSE.txt
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
 
 enable-nolib-creation: no
 

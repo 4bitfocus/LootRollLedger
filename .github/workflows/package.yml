@@ -3,14 +3,23 @@ name: Package Addon
 on:
   push:
     branches: [ master ]
-    tags: [ '*' ]
+    tags:
+      - 'v[0-9]+.[0-9]+'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Clone Project
+        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+        uses: actions/checkout@v2
+        with:
+          # Fetch everything for the change log generation
+          fetch-depth: 0
+
+      - name: Generate Changelog
+        run: ./Utils/changelog.sh > CHANGELOG.md
+
       - name: Create Package
         run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
         env:
