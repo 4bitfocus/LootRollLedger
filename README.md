@@ -25,7 +25,16 @@ This addon monitors item links sent to the raid/instance/party chat channel and 
 ```
 
 ## Screenshots
+Rolling On New Items
+
+![Loot Rolling Example](Screenshots/roll_new_items.png "Loot Rolling Example")
+
+Announcing Winners
+
+![Announcing Loot Winners](Screenshots/roll_results.png "Announcing Loot Winners")
+
 Loot History Window
+
 ![Loot History Window](Screenshots/history_window.png "Loot History Window")
 
 ## Improvement Opportunities
