@@ -1,10 +1,11 @@
-## Interface: 40000
+## Interface: 90001
 ## Title: Loot Roll Ledger
 ## Notes: Monitors item loot rolls from raid chat.
 ## Author: KeedoNow
 ## Version: 0.5
 ## SavedVariables: LootRollLedgerDB
 ## X-Curse-Project-ID: 402978
+## X-WoWI-ID: 25732
 embeds.xml
 LootRollLedger.lua
 HistoryWindow.lua
