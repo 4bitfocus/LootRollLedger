@@ -12,7 +12,7 @@ ver_match="v[0-9]*[0-9]"
 curr_tag=$(git describe --tags --abbrev=0 --match ${ver_match})
 prev_tag=$(git describe --tags --abbrev=0 ${curr_tag}^)
 date_str=$(git log -1 --format=%ad --date=short ${curr_tag})
-echo "Changes made to ${curr_tag} (${date_str}):"
+echo "# Changes made to ${curr_tag} (${date_str}):"
 echo "  - [Full ChangeLog](${proj_url}/commits/${curr_tag})"
 echo "  - [Previous Releases](${proj_url}/releases)"
 # %s is commit subject, %h is the short commit hash. Add %an to include the author name
