@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Helper script to patch local addon updates to a 'retail' installation
+
 retail_dir="/Volumes/Data/Games/World of Warcraft/_retail_/Interface/AddOns/LootRollLedger"
 local_dir="LootRollLedger"
 

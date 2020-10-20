@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to generate a simple changelog for the current release with
-# commit messages taken between the current tag and the previous one.
+# commit messages taken between the current tag and the previous tag.
 
 # Github base url for linking to commits and releases
 proj_url="https://github.com/4bitfocus/LootRollLedger"
