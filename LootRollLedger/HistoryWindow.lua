@@ -13,7 +13,7 @@ function LootRollLedger:CreateScrollingTable()
 end
 
 function LootRollLedger:CreateHistoryFrame()
-    local frame = CreateFrame("Frame", "LootRollLedgerHistoryFrame", UIParent)
+    local frame = CreateFrame("Frame", "LootRollLedgerHistoryFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
     frame.width = 690
     frame.height = 405
     frame:SetFrameStrata("DIALOG")
