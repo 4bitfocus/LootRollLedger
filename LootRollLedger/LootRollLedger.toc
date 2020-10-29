@@ -2,7 +2,7 @@
 ## Title: Loot Roll Ledger
 ## Notes: Monitors item loot rolls from raid chat.
 ## Author: KeedoNow
-## Version: 0.5
+## Version: @project-version@
 ## SavedVariables: LootRollLedgerDB
 ## X-Curse-Project-ID: 402978
 ## X-WoWI-ID: 25732
