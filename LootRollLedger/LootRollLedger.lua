@@ -146,9 +146,8 @@ function LootRollLedger:ClearActiveRolls(info)
 end
 
 function LootRollLedger:DisplayInstructions(info)
-    LootRollLedger:SendSmartMessage("Item roll instructions:")
-    LootRollLedger:SendSmartMessage("If you have an item to put up for roll, link the item in raid chat followed by a <number>")
-    LootRollLedger:SendSmartMessage("If you want to roll for an item, you *must* use the number shared with item. Type: /roll <number>")
+    LootRollLedger:SendSmartMessage("If you have an item to put up for roll, link the item in raid chat followed by a number (10-9999)")
+    LootRollLedger:SendSmartMessage("If you want to roll for an item, you *must* use the number shared with item and type: /roll <number>")
     LootRollLedger:SendSmartMessage("After two minutes, I will announce the winner")
 end
 
@@ -276,9 +275,9 @@ end
 function LootRollLedger:ProcessRaidMessage(msg, author)
     if not self.db.profile.enabled then return end
 
-    -- Ignore any of the messages that we send via SendSmartMessage() to the raid/party channel
-    if msg:find("The winner of ") or msg:find("No one rolled on ") or msg:find("Ut oh! That number ") or 
-       msg:find("command does not match an active item roll") then
+    -- Ignore any of the messages that this addon sends containing an item link
+    -- via SendSmartMessage() to the raid/party channel
+    if msg:find("The winner of ") or msg:find("No one rolled on ") then
         return
     end
 
@@ -288,7 +287,7 @@ function LootRollLedger:ProcessRaidMessage(msg, author)
     -- Reassemble the item link
     local itemLink = LootRollLedger:CreateItemLink(itemColor, itemParts, itemName)
 
-    --LootRollLedger:Print("Linked item detected! " .. itemName .. " ==> " .. itemLink)
+    --LootRollLedger:Print("Linked item detected! " .. itemName .. " => " .. itemLink)
     --LootRollLedger:Print("Item roll started by " .. author)
 
     local startIndex, endIndex = LootRollLedger:IndexOfItemLink(msg)
@@ -299,7 +298,7 @@ function LootRollLedger:ProcessRaidMessage(msg, author)
             number = tonumber(number)
             -- Exclude a few numbers that are hard to deal with, or at least not currently handled
             if number == 100 or number <= 1 then
-                LootRollLedger:SendSmartMessage("Awkward! That number (" .. number .. ") cannot be used for item rolls :/")
+                LootRollLedger:SendSmartMessage("Awkward! That number (" .. number .. ") cannot be used for item rolls :(")
             end
             local duplicateMax = false
             -- Check for a duplicate active roll for that number
@@ -408,8 +407,20 @@ function LootRollLedger:ProcessLootRoll(msg)
 
     if not foundActiveMatch then
         -- TODO Can this be a whisper?
-        LootRollLedger:SendSmartMessage("Sorry " .. name .. ", the <number> in your /roll command does not match an active item roll.")
+        --LootRollLedger:SendSmartMessage("Sorry " .. name .. ", the number from your /roll command does not match an active item roll.")
+        SendChatMessage("The number from your /roll command does not match an active item roll", "WHISPER", "Common", name)
     end
+end
+
+-- Determine if the current player is the raid leader or a raid assistant
+function LootRollLedger:IsRaidLeader()
+    if IsPartyLFG and IsPartyLFG() then
+        return false -- never use in LFG
+    end
+    if GetNumGroupMembers() == 0 and self.db.profile.debug then
+        return true -- testing, party of one, testing
+    end
+    return UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")
 end
 
 -- NOTE: Any message that is logged here will also be sent back to this addon and needs
