@@ -9,7 +9,7 @@ function LootRollLedger:OnInitialize()
             enable = {
                 order = 1,
                 name = "Enable",
-                desc = "Enable or disable all addon functionality",
+                desc = "Enable or disable all loot roll tracking",
                 type = "toggle",
                 set = "SetEnableAddon",
                 get = "GetEnableAddon",
@@ -30,22 +30,29 @@ function LootRollLedger:OnInitialize()
                 set = "SetDebugging",
                 get = "GetDebugging",
             },
-            clear = {
+            settings = {
                 order = 4,
+                name = "Settings",
+                desc = "Print current settings",
+                type = "execute",
+                func = "ShowCurrentSettings",
+            },
+            clear = {
+                order = 5,
                 name = "Clear",
                 desc = "Clear all active loot rolls",
                 type = "execute",
                 func = "ClearActiveRolls",
             },
             instructions = {
-                order = 5,
+                order = 6,
                 name = "Instructions",
                 desc = "Print instructions to chat window",
                 type = "execute",
                 func = "DisplayInstructions",
             },
             test = {
-                order = 6,
+                order = 7,
                 hidden = true,
                 name = "Test",
                 desc = "Test item link parsing",
@@ -53,18 +60,18 @@ function LootRollLedger:OnInitialize()
                 set = "SetTestMessage",
             },
             search = {
-                order = 7,
+                order = 8,
                 name = "Search",
                 desc = "Search previous item rolls",
                 type = "input",
                 set = "Search",
             },
             history = {
-                order = 8,
+                order = 9,
                 name = "History",
                 desc = "Display loot roll history window",
-                type = "input",
-                set = "History",
+                type = "execute",
+                func = "History",
             },
         },
     }
@@ -91,18 +98,22 @@ function LootRollLedger:OnInitialize()
     self.scrollingTable = nil
     self.historyFrame = nil
     self.showingHistory = false
+    self.raidLeader = false
+    self.whisperWarnings = {}
 
     LootRollLedger:RegisterEvent("CHAT_MSG_RAID")
     LootRollLedger:RegisterEvent("CHAT_MSG_RAID_LEADER")
     LootRollLedger:RegisterEvent("CHAT_MSG_RAID_WARNING")
     LootRollLedger:RegisterEvent("CHAT_MSG_SYSTEM")
+    LootRollLedger:RegisterEvent("PARTY_LEADER_CHANGED")
+    LootRollLedger:RegisterEvent("GROUP_ROSTER_UPDATE")
 end
 
 function LootRollLedger:OnEnable()
     -- Called when the addon is enabled
-    --LootRollLedger:Print("Enabling")
     LootRollLedger:Print("Archived rolls database size: " .. #self.db.global.archivedRolls)
     LootRollLedger:ScheduleRepeatingTimer("RollTimerExpired", 2)
+    LootRollLedger:CheckForNewRaidLeader()
 end
 
 function LootRollLedger:OnDisable()
@@ -135,6 +146,12 @@ end
 
 function LootRollLedger:GetDebugging(info)
     return self.db.profile.debug
+end
+
+function LootRollLedger:ShowCurrentSettings(info)
+    LootRollLedger:Print("enabled: " .. (self.db.profile.enabled and "true" or "false"))
+    LootRollLedger:Print("reporting: " .. (self.db.profile.reporting and "true" or "false"))
+    LootRollLedger:Print("debug: " .. (self.db.profile.debug and "true" or "false"))
 end
 
 function LootRollLedger:ClearActiveRolls(info)
@@ -325,27 +342,23 @@ function LootRollLedger:ProcessRaidMessage(msg, author)
                 if self.db.profile.debug then
                     LootRollLedger:Print("Tracking loot roll (" .. number .. ") from " .. author .. " for " .. itemLink)
                 end
-                --LootRollLedger:ScheduleTimer("RollTimerExpired", 120, data)
             end
         end
     end
 end
 
 -- Callback from the scheduled timer for when a roll expires for an item
---function LootRollLedger:RollTimerExpired(timerData)
 function LootRollLedger:RollTimerExpired()
     if #self.db.global.activeRolls == 0 then
         return
     end
-    if self.db.profile.debug then
-        LootRollLedger:Print("There are currently " .. #self.db.global.activeRolls .. " active rolls")
-    end
+    --LootRollLedger:Print("Monitoring " .. #self.db.global.activeRolls .. " active rolls")
     for loopCount = 1, 5 do
         local now = GetServerTime()
         local skipRemaining = false
         for activeKey, activeData in pairs(self.db.global.activeRolls) do
             if not skipRemaining then
-                --if activeData.max == timerData.max and activeData.from == timerData.from then
+                -- Allow at least 2 minutes for player rolls
                 if (now - activeData.time) >= 120 then
                     local winnerIndex, runnerUpIndex = LootRollLedger:FindTopRoll(activeData)
                     if winnerIndex < 0 then
@@ -406,9 +419,30 @@ function LootRollLedger:ProcessLootRoll(msg)
     end
 
     if not foundActiveMatch then
-        -- TODO Can this be a whisper?
-        --LootRollLedger:SendSmartMessage("Sorry " .. name .. ", the number from your /roll command does not match an active item roll.")
-        SendChatMessage("The number from your /roll command does not match an active item roll", "WHISPER", "Common", name)
+        LootRollLedger:SendRollWarning(name)
+    end
+end
+
+function LootRollLedger:SendRollWarning(playerName)
+    -- Only send the whisper warning one time
+    if self.whisperWarnings[playerName] == nil then
+        SendChatMessage("Your /roll command does not match an active item roll. Please make sure it is correct.", "WHISPER", "Common", playerName)
+        self.whisperWarnings[playerName] = true
+    end
+end
+
+function LootRollLedger:CheckForNewRaidLeader()
+    local oldRaidLeader = self.raidLeader
+    if LootRollLedger:IsRaidLeader() then
+        self.raidLeader = true
+    else
+        self.raidLeader = false
+    end
+    -- Log the state change if applicable
+    if oldRaidLeader == true and self.raidLeader == false then
+        LootRollLedger:Print("Raid lead/assist status changed, loot reporting not allowed")
+    elseif oldRaidLeader == false and self.raidLeader == true then
+        LootRollLedger:Print("Raid lead/assist status changed, loot reporting allowed")
     end
 end
 
@@ -420,13 +454,14 @@ function LootRollLedger:IsRaidLeader()
     if GetNumGroupMembers() == 0 and self.db.profile.debug then
         return true -- testing, party of one, testing
     end
+    -- Consider the actual leader or someone with assist as a raid leader
     return UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")
 end
 
 -- NOTE: Any message that is logged here will also be sent back to this addon and needs
 -- to be filtered from ProcessRaidMessage() if it would trigger another roll.
 function LootRollLedger:SendSmartMessage(msg)
-    local chatType = "NONE"
+    local chatType = "UNKNOWN"
     if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
         chatType = "INSTANCE_CHAT"
     elseif IsInRaid() then
@@ -434,7 +469,9 @@ function LootRollLedger:SendSmartMessage(msg)
     elseif IsInGroup() then
         chatType = "PARTY"
     end
-    if chatType ~= "NONE" and self.db.profile.reporting then
+    -- To message the entire raid, the player running this addon must have raid lead or raid
+    -- assist permissions. Otherwise, it will just be reported privately to that user.
+    if chatType ~= "UNKNOWN" and self.raidLeader and self.db.profile.reporting then
         SendChatMessage(msg, chatType)
     else
         LootRollLedger:Print(msg)
@@ -455,4 +492,14 @@ end
 
 function LootRollLedger:CHAT_MSG_SYSTEM(eventName, msg)
     LootRollLedger:ProcessLootRoll(msg)
+end
+
+function LootRollLedger:PARTY_LEADER_CHANGED(eventName)
+    --LootRollLedger:Print("Party leader status changed")
+    self:ScheduleTimer("CheckForNewRaidLeader", 1)
+end
+
+function LootRollLedger:GROUP_ROSTER_UPDATE(eventName)
+    --LootRollLedger:Print("Group roster status changed")
+    self:ScheduleTimer("CheckForNewRaidLeader", 1)
 end

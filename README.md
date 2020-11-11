@@ -2,7 +2,9 @@
 
 Simple loot roll monitor and tracker for World of Warcraft.
 
-This addon monitors item links sent to the raid/instance/party chat channel and then tracks rolls for those items. It uses the patented Luvly's Lovely Loot Rolling Method™️ for distributing items after a boss kill. This process involves linking an item to raid chat followed by a number. Raiders that want to roll on that item use `/roll <number`, and the addon will track the entries and report the winner. This allows the raid to roll for multiple items at the same time. The addon will give players two minutes to do a `/roll <number>` if they want the item.
+This addon monitors item links sent to the raid/instance/party chat channel and then tracks rolls for those items. It uses the patented Luvly's Lovely Loot Rolling Method™️ for distributing items after a boss kill. This process involves linking an item to raid chat followed by a number. Raiders that want to roll on that item use `/roll <number>`, and the addon will track the entries and report the winner after two minutes. This allows the raid to roll for multiple items at the same time. The addon will give players two minutes to do a `/roll <number>` if they want the item.
+
+**The player running this addon must have raid lead or raid assist permission to announce the winner publically.**
 
 ## Downloads
 
@@ -12,8 +14,8 @@ This addon monitors item links sent to the raid/instance/party chat channel and 
 
 ## Instructions
 
-1. Only one person needs to run this addon
-2. A player links an item in raid chat followed by a number. Example: "[Psyche Shredder] 414"
+1. Only one person (the raid lead or a raid assist) needs to run this addon
+2. Player links an item in raid chat followed by a number. Example: "[Psyche Shredder] 414"
 3. Interested players type `/roll <number>` to roll on the item linked. Example: "/roll 414"
 4. After two minutes, the winner will be announced
 
@@ -21,11 +23,12 @@ This addon monitors item links sent to the raid/instance/party chat channel and 
 
 ```
 /lrl or /lootrollledger
-  enable - Enable or disable all addon functionality (toggle)
+  enable - Enable or disable all loot roll tracking (toggle)
   reporting - Enable or disable reporting results to raid chat (toggle)
   debug - Enable or disable additional logging (toggle)
+  settings - Print current settings
   clear - Clear all active loot rolls
-  instructions - Post rolling instructions to raid chat
+  instructions - Print instructions to chat window
   search - Search previous item rolls
   history - Display loot roll history window
 ```
