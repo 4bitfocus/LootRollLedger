@@ -16,5 +16,11 @@ if [ ! -d "${retail_dir}" ]; then
 fi
 
 for file in $(ls -1 "${local_dir}"); do
-	cp -vf "${local_dir}/${file}" "${retail_dir}"
+	diff -q "${local_dir}/${file}" "${retail_dir}"
+	is_diff=$?
+	if [ ${is_diff} -eq 0 ]; then
+		echo "No changes detected for: ${local_dir}/${file}"
+	else
+		cp -vf "${local_dir}/${file}" "${retail_dir}"
+	fi
 done
