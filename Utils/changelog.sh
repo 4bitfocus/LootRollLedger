@@ -9,7 +9,13 @@ proj_url="https://github.com/4bitfocus/LootRollLedger"
 # This should match your version tag naming scheme
 ver_match="v[0-9]*[0-9]"
 
-curr_tag=$(git describe --tags --abbrev=0 --match ${ver_match})
+# Read the current tag from the most recent in git or from the command line
+if [ -z "${1}" ]; then
+	curr_tag=$(git describe --tags --abbrev=0 --match ${ver_match})
+else
+	curr_tag=${1}
+fi
+
 prev_tag=$(git describe --tags --abbrev=0 ${curr_tag}^)
 date_str=$(git log -1 --format=%ad --date=short ${curr_tag})
 echo "# Changes made to ${curr_tag} (${date_str}):"
