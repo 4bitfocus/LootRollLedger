@@ -4,7 +4,7 @@ Simple loot roll monitor and tracker for World of Warcraft.
 
 This addon monitors item links sent to the raid/instance/party chat channel and then tracks rolls for those items. It uses the patented Luvly's Lovely Loot Rolling Method™️ for distributing items after a boss kill. This process involves linking an item to raid chat followed by a number. Raiders that want to roll on that item use `/roll <number>`, and the addon will track the entries and report the winner after two minutes. This allows the raid to roll for multiple items at the same time. The addon will give players two minutes to do a `/roll <number>` if they want the item.
 
-**The player running this addon must have raid lead or raid assist permission to announce the winner publically.**
+**The player running this addon must have raid lead or raid assist permission to announce the winner publicaly.**
 
 ## Downloads
 
