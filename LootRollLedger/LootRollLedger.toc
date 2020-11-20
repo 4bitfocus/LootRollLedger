@@ -1,6 +1,6 @@
-## Interface: 90001
+## Interface: 90002
 ## Title: Loot Roll Ledger
-## Notes: Monitors item loot rolls from raid chat.
+## Notes: Monitors item loot rolls from raid chat
 ## Author: KeedoNow
 ## Version: @project-version@
 ## SavedVariables: LootRollLedgerDB
