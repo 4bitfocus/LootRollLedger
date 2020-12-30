@@ -418,7 +418,7 @@ function LootRollLedger:ProcessLootRoll(msg)
         end
     end
 
-    if not foundActiveMatch then
+    if foundActiveMatch == false and #self.db.global.activeRolls > 0 then
         LootRollLedger:SendRollWarning(name)
     end
 end
@@ -426,8 +426,8 @@ end
 function LootRollLedger:SendRollWarning(playerName)
     -- Only send the whisper warning one time
     if self.whisperWarnings[playerName] == nil then
-        SendChatMessage("Your /roll command does not match an active item roll. Please make sure it is correct.", "WHISPER", "Common", playerName)
         self.whisperWarnings[playerName] = true
+        SendChatMessage("Your /roll command does not match an active item roll. Please make sure it is correct.", "WHISPER", "Common", playerName)
     end
 end
 
@@ -446,6 +446,15 @@ function LootRollLedger:CheckForNewRaidLeader()
     end
 end
 
+function LootRollLedger:IsPlayerInRaidGroup()
+    local inRaid = UnitInRaid("player")
+    if inRaid == nil then
+        return false
+    else
+        return true
+    end
+end
+
 -- Determine if the current player is the raid leader or a raid assistant
 function LootRollLedger:IsRaidLeader()
     if IsPartyLFG and IsPartyLFG() then
@@ -453,6 +462,9 @@ function LootRollLedger:IsRaidLeader()
     end
     if GetNumGroupMembers() == 0 and self.db.profile.debug then
         return true -- testing, party of one, testing
+    end
+    if LootRollLedger:IsPlayerInRaidGroup() == false then
+        return false -- don't use in 5-man parties
     end
     -- Consider the actual leader or someone with assist as a raid leader
     return UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")
