@@ -1,4 +1,4 @@
-## Interface: 90002
+## Interface: 90100
 ## Title: Loot Roll Ledger
 ## Notes: Monitors item loot rolls from raid chat
 ## Author: KeedoNow
