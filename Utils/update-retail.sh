@@ -2,7 +2,7 @@
 
 # Helper script to patch local addon updates to a 'retail' installation
 
-retail_dir="/Volumes/Data/Games/World of Warcraft/_retail_/Interface/AddOns/LootRollLedger"
+retail_dir="/Volumes/Games/Games/World of Warcraft/_retail_/Interface/AddOns/LootRollLedger"
 local_dir="LootRollLedger"
 
 if [ ! -d "${local_dir}" ]; then
