@@ -188,10 +188,10 @@ end
 
 function LootRollLedger:History(info, input)
     if self.historyFrame == nil then
-        LootRollLedger:CreateScrollingTable()
+        LootRollLedger:CreateHistoryFrame()
     end
     self.historyFrame:Show()
-    LootRollLedger:UpdateTable()
+    LootRollLedger:OnVerticalScroll()
 end
 
 -- Removed the trailing server name (e.g. Kegshatter-Malygos) if found
